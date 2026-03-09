@@ -29,11 +29,11 @@ import java.util.stream.Collectors;
 public class ScraperService {
 
 	private static final String CLUBES_URL = "https://www.voleibolib.net/JSON/get_clubes.asp";
+	private static final String COMPETICIONES_URL = "https://www.voleibolib.net/JSON/get_Menu_Competiciones.asp?temp={{temp}}";
+	//private static final String CLASIFICACION_URL = "https://www.voleibolib.net/JSON/get_clasificacion.asp?id={{id}}";
+	private static final String RESULTADOS_URL = "https://www.voleibolib.net/JSON/get_resultados.asp?id={{id}}&jor={{jor}}";
 	private static final String LOGO_URL = "https://voleibolib.federatio.com/fichas/clubes/{{id}}.jpg";
 	private static final String LOGO_MINI_URL = "https://voleibolib.federatio.com/fichas/clubes/{{id}}mini.jpg";
-	private static final String COMPETICIONES_URL = "https://www.voleibolib.net/JSON/get_Menu_Competiciones.asp?temp={{temp}}";
-	private static final String CLASIFICACION_URL = "https://www.voleibolib.net/JSON/get_clasificacion.asp?id={{id}}";
-	private static final String RESULTADOS_URL = "https://www.voleibolib.net/JSON/get_resultados.asp?id={{id}}&jor={{jor}}";
 	private static final String LLIGA_TEXT = "Liga Regular";
 
 	public List<Club> scrapClubs() throws IOException {
