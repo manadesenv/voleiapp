@@ -1,12 +1,14 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Partits from './pages/Partits';
+import Horaris from './pages/Horaris';
+import Resultats from './pages/Resultats';
 import NotFound from './pages/NotFound';
 
 export const AppRoutes = () => {
     return (
         <Routes>
-            <Route path="/" element={<Navigate to="/partits" replace />} />
-            <Route path="/partits" element={<Partits />} />
+            <Route path="/" element={<Navigate to="/horaris" replace />} />
+            <Route path="/horaris" element={<Horaris />} />
+            <Route path="/resultats" element={<Resultats />} />
             <Route path="*" element={<NotFound />} />
         </Routes>
     );

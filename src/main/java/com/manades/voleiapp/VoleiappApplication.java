@@ -2,16 +2,18 @@ package com.manades.voleiapp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.net.ssl.*;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 
+@EnableScheduling
 @SpringBootApplication
 public class VoleiappApplication {
 
-	public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException {
+	static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException {
 		VoleiappApplication.trustAllCerts();
 		SpringApplication.run(VoleiappApplication.class, args);
 	}
