@@ -11,38 +11,13 @@ import { DataGrid } from '@mui/x-data-grid';
 import { useTheme, useMediaQuery } from '@mui/material';
 import type { GridDataSource } from '@mui/x-data-grid';
 import ListLoading from '../components/ListLoading';
+import PartitDialog from '../components/PartitDialog';
+import { localDate } from '../utils';
 
 const CLUB_ID = 21;
 /*const PARTITS_URL =
     'https://www.voleibolib.net/JSON/get_partidos_desglose_competiciones.asp?op={{op}}&fini=&ffin=';*/
 const BACKEND_URL = '/api/partits?clubId=' + CLUB_ID + '&resultats={{resultats}}';
-
-export const abreujar = (text: string) => {
-    if (!text) return text;
-    return text
-        .split(' ')
-        .map((p) => (p.length > 3 ? p.slice(0, 3) + '.' : p))
-        .join(' ');
-};
-
-export const dataAmbFormat = (data: Date) => {
-    if (data != null) {
-        return data.toLocaleDateString('ca-ES', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-        }) +
-            ' ' +
-            data.toLocaleTimeString('ca-ES', { hour: '2-digit', minute: '2-digit' });
-    } else {
-        return data;
-    }
-
-}
-
-export const localDate = (iso: string) => {
-    return dataAmbFormat(new Date(iso));
-}
 
 /*const directDataSource: (op: number) => GridDataSource = (op: number) => ({
     getRows: (_params) =>
@@ -135,14 +110,6 @@ const columns = [
         headerName: 'Categoria',
         flex: 1,
     },
-    /*{
-        field: 'competicioNom',
-        headerName: 'Competició',
-        flex: 1,
-        valueFormatter: (value: any, row: any) => {
-            return (row.grupNom ? row.grupNom + ', ' : '') + value + ', ' + row.faseNom;
-        },
-    },*/
     {
         field: 'data',
         headerName: 'Data',
@@ -167,8 +134,8 @@ const columns = [
         flex: 0.8,
     },
 ];
-const HorarisDataGrid: React.FC<{ dataSource: GridDataSource }> = (props) => {
-    const { dataSource } = props;
+const HorarisDataGrid: React.FC<{ dataSource: GridDataSource, onClick: (partit: any) => void }> = (props) => {
+    const { dataSource, onClick } = props;
     return <Box>
         <DataGrid
             columns={columns}
@@ -181,13 +148,14 @@ const HorarisDataGrid: React.FC<{ dataSource: GridDataSource }> = (props) => {
             }}
             disableColumnMenu
             disableColumnSorting
-            sx={{ '& .MuiDataGrid-footerContainer': { display: 'none' } }}
+            onRowClick={(params) => onClick(params.row)}
+            sx={{ '& .MuiDataGrid-footerContainer': { display: 'none' }, cursor: 'pointer' }}
         />
     </Box>;
 };
 
-const HorarisList: React.FC<{ dataSource: GridDataSource }> = (props) => {
-    const { dataSource } = props;
+const HorarisList: React.FC<{ dataSource: GridDataSource, onClick: (partit: any) => void }> = (props) => {
+    const { dataSource, onClick } = props;
     const [loading, setLoading] = React.useState<boolean>();
     const [partits, setPartits] = React.useState<any[]>();
     React.useEffect(() => {
@@ -199,7 +167,7 @@ const HorarisList: React.FC<{ dataSource: GridDataSource }> = (props) => {
     }, []);
     return loading ? <ListLoading /> : <List component={Paper} square elevation={1} sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {partits?.map((p, i) => <>
-            <ListItem alignItems="center">
+            <ListItem alignItems="center" onClick={() => onClick(p)} sx={{ cursor: 'pointer' }}>
                 <ListItemText
                     primary={<>
                         <Typography
@@ -243,12 +211,29 @@ export const Horaris = () => {
     const dataSource = useDataSource(1);
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
+    const [currentPartit, setCurrentPartit] = React.useState<any>();
+    const handlePartitClick = (partit: any) => {
+        setCurrentPartit(partit);
+        setDialogOpen(true);
+    }
     return (
         <Stack spacing={2}>
             <Box>
                 <Typography variant="h4">Horaris propers partits</Typography>
             </Box>
-            {isSmallScreen ? <HorarisList dataSource={dataSource} /> : <HorarisDataGrid dataSource={dataSource} />}
+            {isSmallScreen ?
+                <HorarisList
+                    dataSource={dataSource}
+                    onClick={handlePartitClick} /> :
+                <HorarisDataGrid
+                    dataSource={dataSource}
+                    onClick={handlePartitClick} />}
+            <PartitDialog
+                open={dialogOpen}
+                partit={currentPartit}
+                fullScreen={isSmallScreen}
+                onClose={() => setDialogOpen(false)} />
         </Stack>
     );
 };

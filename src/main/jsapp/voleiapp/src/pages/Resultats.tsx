@@ -9,9 +9,11 @@ import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import { useTheme, useMediaQuery } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import { useDataSource, localDate } from './Horaris';
+import { useDataSource } from './Horaris';
 import type { GridDataSource } from '@mui/x-data-grid';
 import ListLoading from '../components/ListLoading';
+import PartitDialog from '../components/PartitDialog';
+import { localDate } from '../utils';
 
 const columns = [
     {
@@ -19,14 +21,6 @@ const columns = [
         headerName: 'Categoria',
         flex: 1,
     },
-    /*{
-        field: 'competicioNom',
-        headerName: 'Competició',
-        flex: 1,
-        valueFormatter: (value: any, row: any) => {
-            return (row.grupNom ? row.grupNom + ', ' : '') + value + ', ' + row.faseNom;
-        },
-    },*/
     {
         field: 'data',
         headerName: 'Data',
@@ -52,8 +46,8 @@ const columns = [
     },
 ];
 
-export const ResultatsDataGrid: React.FC<{ dataSource: GridDataSource }> = (props) => {
-    const { dataSource } = props;
+export const ResultatsDataGrid: React.FC<{ dataSource: GridDataSource, onClick: (partit: any) => void }> = (props) => {
+    const { dataSource, onClick } = props;
     return <Box>
         <DataGrid
             columns={columns}
@@ -66,13 +60,14 @@ export const ResultatsDataGrid: React.FC<{ dataSource: GridDataSource }> = (prop
             }}
             disableColumnMenu
             disableColumnSorting
-            sx={{ '& .MuiDataGrid-footerContainer': { display: 'none' } }}
+            onRowClick={(params) => onClick(params.row)}
+            sx={{ '& .MuiDataGrid-footerContainer': { display: 'none' }, cursor: 'pointer' }}
         />
     </Box>;
 };
 
-const ResultatsList: React.FC<{ dataSource: GridDataSource }> = (props) => {
-    const { dataSource } = props;
+const ResultatsList: React.FC<{ dataSource: GridDataSource, onClick: (partit: any) => void }> = (props) => {
+    const { dataSource, onClick } = props;
     const [loading, setLoading] = React.useState<boolean>();
     const [partits, setPartits] = React.useState<any[]>();
     React.useEffect(() => {
@@ -84,7 +79,7 @@ const ResultatsList: React.FC<{ dataSource: GridDataSource }> = (props) => {
     }, []);
     return loading ? <ListLoading /> : <List component={Paper} square elevation={1} sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {partits?.map((p, i) => <>
-            <ListItem alignItems="center">
+            <ListItem alignItems="center" onClick={() => onClick(p)} sx={{ cursor: 'pointer' }}>
                 <ListItemText
                     primary={<>
                         <Typography
@@ -131,12 +126,29 @@ export const Resultats = () => {
     const dataSource = useDataSource(2);
     const theme = useTheme();
     const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const [dialogOpen, setDialogOpen] = React.useState<boolean>(false);
+    const [currentPartit, setCurrentPartit] = React.useState<any>();
+    const handlePartitClick = (partit: any) => {
+        setCurrentPartit(partit);
+        setDialogOpen(true);
+    }
     return (
         <Stack spacing={2}>
             <Box>
                 <Typography variant="h4">Darrers resultats</Typography>
             </Box>
-            {isSmallScreen ? <ResultatsList dataSource={dataSource} /> : <ResultatsDataGrid dataSource={dataSource} />}
+            {isSmallScreen ?
+                <ResultatsList
+                    dataSource={dataSource}
+                    onClick={handlePartitClick} /> :
+                <ResultatsDataGrid
+                    dataSource={dataSource}
+                    onClick={handlePartitClick} />}
+            <PartitDialog
+                open={dialogOpen}
+                partit={currentPartit}
+                fullScreen={isSmallScreen}
+                onClose={() => setDialogOpen(false)} />
         </Stack>
     );
 };

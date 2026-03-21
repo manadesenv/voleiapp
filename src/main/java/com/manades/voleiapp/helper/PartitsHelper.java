@@ -2,10 +2,7 @@ package com.manades.voleiapp.helper;
 
 import com.manades.voleiapp.model.Partit;
 import com.manades.voleiapp.model.federatio.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.retry.annotation.Backoff;
@@ -76,6 +73,7 @@ public class PartitsHelper {
         	Competicion competicion,
         	Fase fase,
         	Grupo grupo) {
+		boolean ambResultat = !"0".equals(partido.getResultadoLocal()) || !"0".equals(partido.getResultadoVisitante());
 		return new Partit(
 				partido.getId(),
 				partido.getClubLocalId(),
@@ -85,8 +83,8 @@ public class PartitsHelper {
 				partido.getEquipoVisitante(),
 				false,
 				parseDataHora(partido.getFecha(), partido.getHora()),
-				partido.getResultadoLocal(),
-				partido.getResultadoVisitante(),
+				ambResultat ? partido.getResultadoLocal() : null,
+				ambResultat ? partido.getResultadoVisitante() : null,
 				partido.getCampo(),
 				partido.getCampoDireccion(),
 				partido.getMunicipio(),
@@ -112,6 +110,7 @@ public class PartitsHelper {
 
 	@Getter
 	@Setter
+	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class PartitsResponse {
 		private List<Categoria> categorias;
